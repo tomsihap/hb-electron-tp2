@@ -2,16 +2,29 @@ const remote = require('electron').remote;
 const { BrowserWindow } = require('electron').remote;
 const { ipcRenderer } = require('electron');
 
+
+/**
+ * Au démarrage de la page :
+ */
+
+// On récupère les données existantes éventuelles dans le localStorage
 let elementsArray = JSON.parse(localStorage.getItem('elements'));
 
-const elementsList = document.getElementById('elements-list');
-elementsList.innerHTML = '';
+// On vérifie que elementsArray existe ( !== null ) et que ce soit un tableau d'au moins 1 élément ( .length >0 )
+if (elementsArray !== null && elementsArray.length > 0) {
+    // On récupère la balise HTML qui contiendra les donnéees existantes
+    const elementsList = document.getElementById('elements-list');
 
-elementsArray.forEach(function (element, index) {
-    let elementHtml = '<li><strong>' + element.type + '</strong> - ' + element.title + '</li>';
-    elementsList.innerHTML += elementHtml;
-})
+    // On boucle sur les données du localStorage pour les afficher dès le démarrage de la page
+    elementsArray.forEach(function (element, index) {
+        let elementHtml = '<li><strong>' + element.type + '</strong> - ' + element.title + '</li>';
+        elementsList.innerHTML += elementHtml;
+    })
+}
 
+/**
+ * Gestion du bouton d'ajout d'un élément
+ */
 const btnAddElement = document.getElementById('btn-add-element');
 
 btnAddElement.addEventListener('click', () => {
@@ -29,10 +42,15 @@ btnAddElement.addEventListener('click', () => {
     winAddElement.webContents.send('ok')
 });
 
+/**
+ * Gestion des évènements
+ */
+// Quand on clique sur "clicked-button" dans la fenêtre enfant
 ipcRenderer.on('clicked-button', function() {
     console.log('Le bouton a été cliqué depuis la fenêtre enfant !');
 });
 
+// Quand on enregistre un élément depuis la fenêtre enfant
 ipcRenderer.on('element-added', function () {
     console.log('Un élément a été ajouté au localStorage !')
 
@@ -48,7 +66,7 @@ ipcRenderer.on('element-added', function () {
     // 3. On gère l'affichage dans le HTML
 
     // On récupère la balise HTML qui contiendra mes éléments
-    const elementsList = document.getElementById('elements-list')
+    const elementsList = document.getElementById('elements-list');
 
     // D'abord, on vide l'affichage existant si jamais il y avaitdéjà une liste affichée dans elementsList
     elementsList.innerHTML = '';
